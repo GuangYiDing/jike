@@ -1,6 +1,7 @@
 package me.cocode.jike.security;
 
-import me.cocode.jike.common.exception.RRException;
+import me.cocode.jike.common.cro.ResultCode;
+import me.cocode.jike.common.exception.BizException;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,17 +20,16 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
 
     private static final String LOGIN_SIGN = "Authorization";
 
-    private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    private final Logger  logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * 判断用户是否想要登入
-     * 请求头中携带了Authorization 即可
      */
     @Override
     protected boolean isLoginAttempt(ServletRequest request, ServletResponse response) {
         HttpServletRequest req           = (HttpServletRequest) request;
         String             authorization = req.getHeader(LOGIN_SIGN);
-        return authorization != null;
+        return   authorization != null ;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
         String             authorization = req.getHeader(LOGIN_SIGN);
 
         JwtToken token = new JwtToken(authorization);
-        LOGGER.info("token ==> "+token);
+        logger.info("token ==> "+token);
         // 提交给realm进行登入，如果错误他会抛出异常并被捕获
         getSubject(request, response).login(token);
         // 如果没有抛出异常则代表登入成功，返回true
@@ -60,7 +60,7 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
             try {
                 executeLogin(request, response);
             } catch (Exception e) {
-                throw new RRException("登录权限不足!", 505, e);
+                throw new BizException("登录权限不足!", ResultCode.FORBIDDEN.getCode(), e);
             }
         }
         return true;
@@ -83,4 +83,7 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
         }
         return super.preHandle(request, response);
     }
+
+
+
 }

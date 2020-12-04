@@ -1,13 +1,10 @@
 package me.cocode.jike.security;
 
-import me.cocode.jike.common.exception.RRException;
+import me.cocode.jike.common.cro.ResultCode;
+import me.cocode.jike.common.exception.BizException;
 import me.cocode.jike.dao.UsersMapper;
 import me.cocode.jike.entity.Users;
-import me.cocode.jike.service.UserService;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -59,17 +56,21 @@ public class MyRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken auth) throws AuthenticationException {
         logger.info("认证: doGetAuthenticationInfo==>" + auth);
+
         String  token  = (String) auth.getCredentials();
+        if (token == null) {
+            throw new AuthenticationException(ResultCode.UNAUTHORIZED.getMessage());
+        }
         Integer userId = JwtUtils.getUserId(token);
         if (userId == null) {
-            throw new AuthenticationException("token invalid");
+            throw new AuthenticationException(ResultCode.UNAUTHORIZED.getMessage());
         }
         Users user = service.selectByPrimaryKey(userId);
         if (user == null) {
-            throw new AuthenticationException("user don't existed!");
+            throw new AuthenticationException("账号不存在!");
         }
         if (!JwtUtils.verify(token, userId, user.getPassword())) {
-            throw new AuthenticationException("username or password incorrect!");
+            throw new AuthenticationException("账号或密码不正确!");
         }
         return new SimpleAuthenticationInfo(token, token, "my_realm");
     }

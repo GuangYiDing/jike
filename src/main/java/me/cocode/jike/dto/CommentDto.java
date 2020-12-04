@@ -19,7 +19,7 @@ public class CommentDto   {
     /**
      * 评论id
      */
-    private String commId;
+    private Integer commId;
     /**
      * 用户名
      */

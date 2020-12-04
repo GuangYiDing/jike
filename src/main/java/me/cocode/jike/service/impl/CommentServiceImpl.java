@@ -23,7 +23,7 @@ public class CommentServiceImpl  extends CommonServiceImpl<Comments> implements 
     private CommentsMapper commentsMapper;
 
     @Override
-    protected CommonMapper<Comments> getMapper() {
+    public CommonMapper<Comments> getMapper() {
         return commentsMapper;
     }
 

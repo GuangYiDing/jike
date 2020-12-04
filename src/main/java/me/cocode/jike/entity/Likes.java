@@ -31,14 +31,14 @@ public class Likes implements Serializable {
      */
     @Column(name = "user_id")
     @ApiModelProperty("用户id")
-    private String userId;
+    private Integer userId;
 
     /**
-     * 点赞类型 0为动态点赞1位回复点赞
+     * 评论id
      */
-    @Column(name = "like_type")
-    @ApiModelProperty("点赞类型 0为动态点赞1位回复点赞")
-    private String likeType;
+    @Column(name = "comment_id")
+    @ApiModelProperty("评论id")
+    private Integer commentId;
 
     private static final long serialVersionUID = 1L;
 
@@ -51,7 +51,7 @@ public class Likes implements Serializable {
         sb.append(", id=").append(id);
         sb.append(", trendId=").append(trendId);
         sb.append(", userId=").append(userId);
-        sb.append(", likeType=").append(likeType);
+        sb.append(", commentId=").append(commentId);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

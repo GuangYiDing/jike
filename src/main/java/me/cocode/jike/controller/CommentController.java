@@ -10,6 +10,8 @@ import me.cocode.jike.dto.PostCommDto;
 import me.cocode.jike.entity.Comments;
 import me.cocode.jike.security.JwtUtils;
 import me.cocode.jike.service.CommentService;
+import me.cocode.jike.service.TrendService;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.spring.web.json.Json;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +38,9 @@ public class CommentController {
     private CommentService commentService;
 
 
+    @Autowired
+    private TrendService trendService;
+
     @GetMapping
     @ApiOperation("获取动态评论")
     public R<List<CommentDto>> getComm(@RequestParam("trendId") Integer trendId){
@@ -45,9 +51,16 @@ public class CommentController {
     @RequiresAuthentication
     @ApiOperation("发布评论")
     public R postComment(@RequestBody String postCommJson,@RequestHeader("Authorization") String token){
-        PostCommDto postCommDto = JSON.parseObject(postCommJson, PostCommDto.class);
-        logger.debug("Dto => "+ postCommDto.toString());
-        return R.success(postCommDto);
+        // 添加新评论
+        Integer userId = JwtUtils.getUserId(token);
+        Comments comments = JSON.parseObject(postCommJson, Comments.class);
+        comments.setCreateTime(new Date());
+        comments.setUserId(userId);
+        logger.info(" new Comment" + comments.toString());
+        commentService.insert(comments);
+        // 更新动态评论值
+        trendService.increaseCommentCount(comments.getTrendId());
+        return R.success(null);
     }
 
 }

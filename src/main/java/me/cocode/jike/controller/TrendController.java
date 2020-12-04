@@ -55,5 +55,11 @@ public class TrendController {
 
     }
 
+    @GetMapping
+    @ApiOperation("根据主键获取动态详情")
+    public R<TrendDto> getTrendById(@RequestParam("trendId") Integer trendId){
+        return R.success(trendService.getTrendById(trendId));
+    }
+
 
 }

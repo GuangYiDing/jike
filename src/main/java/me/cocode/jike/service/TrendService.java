@@ -4,6 +4,7 @@ import me.cocode.jike.common.service.CommonService;
 import me.cocode.jike.dto.PostTrendDto;
 import me.cocode.jike.dto.TrendDto;
 import me.cocode.jike.entity.Trend;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -24,4 +25,8 @@ public interface TrendService extends CommonService<Trend> {
 
     List<TrendDto> getRecommendTrends();
 
+    int increaseCommentCount(Integer trendId);
+
+
+    TrendDto getTrendById(Integer trendId);
 }

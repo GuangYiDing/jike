@@ -3,6 +3,7 @@ package me.cocode.jike.service.impl;
 import me.cocode.jike.common.service.CommonMapper;
 import me.cocode.jike.common.service.impl.CommonServiceImpl;
 import me.cocode.jike.dao.TrendMapper;
+import me.cocode.jike.dao.UsersMapper;
 import me.cocode.jike.dao.ZonesMapper;
 import me.cocode.jike.dto.PostTrendDto;
 import me.cocode.jike.dto.TrendDto;
@@ -31,6 +32,9 @@ public class TrendServiceImpl extends CommonServiceImpl<Trend> implements TrendS
     @Autowired
     private ZonesMapper zonesMapper;
 
+    @Autowired
+    private UsersMapper usersMapper;
+
     @Override
     protected CommonMapper<Trend> getMapper() {
         return trendMapper;
@@ -56,5 +60,15 @@ public class TrendServiceImpl extends CommonServiceImpl<Trend> implements TrendS
     @Override
     public List<TrendDto> getRecommendTrends() {
         return trendMapper.getRecommendTrends();
+    }
+
+    @Override
+    public int increaseCommentCount(Integer trendId) {
+        return trendMapper.increaseCommentCount(trendId);
+    }
+
+    @Override
+    public TrendDto getTrendById(Integer trendId) {
+        return  trendMapper.getTrendById(trendId);
     }
 }

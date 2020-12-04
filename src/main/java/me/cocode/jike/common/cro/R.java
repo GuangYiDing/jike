@@ -40,7 +40,7 @@ public class R<T> {
      * 失败返回结果
      * @param errorCode 错误码
      */
-    public static <T> R<T> failed(IErrorCode errorCode) {
+    public static <T> R<T> failed(BaseErrorCode errorCode) {
         return new R<T>(errorCode.getCode(), errorCode.getMessage(), null);
     }
 
@@ -87,6 +87,25 @@ public class R<T> {
     public static <T> R<T> forbidden(T data) {
         return new R<T>(ResultCode.FORBIDDEN.getCode(), ResultCode.FORBIDDEN.getMessage(), data);
     }
+
+    /**
+     * 请求的数据格式不符
+     */
+    public static <T> R<T> bodyNotMatch(T data) {
+        return new R<T>(ResultCode.BODY_NOT_MATCH.getCode(), ResultCode.BODY_NOT_MATCH.getMessage(), data);
+    }
+
+    /**
+     * 服务器正忙
+     */
+    public static <T> R<T> serverBusy(T data) {
+        return new R<T>(ResultCode.SERVER_BUSY.getCode(), ResultCode.SERVER_BUSY.getMessage(), data);
+    }
+
+    public static <T> R<T> failed(long code, String msg) {
+        return new R<T>(code,msg,null);
+    }
+
 
     public long getCode() {
         return code;

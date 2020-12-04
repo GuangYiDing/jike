@@ -1,6 +1,7 @@
 package me.cocode.jike.dto;
 
 import lombok.Data;
+import me.cocode.jike.entity.Comments;
 
 /**
  * 2020/12/1 14:49
@@ -8,7 +9,7 @@ import lombok.Data;
  * @author xiaodingsiren
  */
 @Data
-public class PostCommDto {
+public class PostCommDto  {
 
     private Integer trendId;
     private String content;

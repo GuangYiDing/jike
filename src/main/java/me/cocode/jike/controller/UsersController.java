@@ -45,13 +45,17 @@ public class UsersController {
 
     @PostMapping
     @ApiOperation("用户注册")
-    public ResultCode saveUser(@RequestParam("userName") String userName,
+    public R saveUser(@RequestParam("userName") String userName,
                                @RequestParam("password") String password){
+        Users byName = userService.selectOneByName(userName);
+        if (byName != null){
+            return R.failed("用户名已存在");
+        }
         Users newUser = new Users();
         newUser.setUserName(userName);
         newUser.setPassword(new Md5Hash(password, userName, 3).toString());
         userService.insert(newUser);
-        return ResultCode.SUCCESS;
+        return R.success(null);
     }
 
     @PostMapping("/login")
@@ -59,10 +63,11 @@ public class UsersController {
     public R login(@RequestParam("userName") String userName,@RequestParam("password") String password){
         Users byName = userService.selectOneByName(userName);
         if (byName == null){
-            return R.failed("账号或密码错误!");
+            return R.failed("账号不存在!");
         }
         logger.info("byName => " + byName.toString());
         String crypto = new Md5Hash(password, userName, 3).toString();
+        logger.info("crypto => " +crypto );
         if (byName.getPassword().equals(crypto)){
             String token = JwtUtils.sign(byName.getId(), crypto);
             return R.success(token,"登录成功");
@@ -85,10 +90,5 @@ public class UsersController {
     }
 
 
-    @RequestMapping(path = "/401")
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public R unauthorized() {
-        return R.failed("Unauthorized");
-    }
 
 }

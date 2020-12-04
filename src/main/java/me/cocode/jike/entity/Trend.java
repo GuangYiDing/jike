@@ -59,6 +59,9 @@ public class Trend implements Serializable {
     @ApiModelProperty("圈子id")
     private Integer zoneId;
 
+
+
+
     private static final long serialVersionUID = 1L;
 
     @Override

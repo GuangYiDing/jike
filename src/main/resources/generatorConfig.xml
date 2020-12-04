@@ -44,13 +44,13 @@
         <!-- mapper xml 生成 -->
         <sqlMapGenerator targetPackage="me.cocode.jike.mapper" targetProject="src/main/resources"/>
         <!-- dao 生成  -->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="me.cocode.jike.dao"
-                             targetProject="src/main/java"/>
+<!--        <javaClientGenerator type="XMLMAPPER" targetPackage="me.cocode.jike.dao"-->
+<!--                             targetProject="src/main/java"/>-->
 
 
         <!--生成全部表tableName设为%-->
 
-        <table tableName="comments">
+        <table tableName="likes">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
     </context>
