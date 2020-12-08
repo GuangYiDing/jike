@@ -16,10 +16,27 @@ public interface LikesMapper extends CommonMapper<Likes> {
 
 
     /**
+     * 取消点赞动态 更新动态表中点赞数字段
+     */
+    @Update("UPDATE trend " +
+            "SET trend.likes_count=(SELECT likes_count FROM ( " +
+            "SELECT trend.likes_count FROM trend WHERE trend.id=#{trendId}) AS t)-1 WHERE trend.id=#{trendId}")
+    int decreaseTrendLikesCount(@Param("trendId")Integer trendId);
+
+    /**
      * 点赞评论 更新评论表中点赞数字段
      */
     @Update("UPDATE comments " +
             "SET comments.likes_count=(SELECT likes_count FROM ( " +
             "SELECT comments.likes_count FROM comments WHERE comments.id=#{commId}) AS t)+1 WHERE comments.id=#{commId}")
     int increaseCommLikesCount(@Param("commId")Integer commId);
+
+    /**
+     * 取消点赞评论 更新评论表中点赞数字段
+     */
+    @Update("UPDATE comments " +
+            "SET comments.likes_count=(SELECT likes_count FROM ( " +
+            "SELECT comments.likes_count FROM comments WHERE comments.id=#{commId}) AS t)-1 WHERE comments.id=#{commId}")
+    int decreaseCommLikesCount(@Param("commId")Integer commId);
+
 }

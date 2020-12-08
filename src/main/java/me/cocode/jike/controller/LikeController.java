@@ -87,6 +87,24 @@ public class LikeController {
         return R.success(likesMapper.increaseTrendLikesCount(trendId));
     }
 
+    @DeleteMapping("/trend")
+    @RequiresAuthentication
+    @ApiOperation("取消点赞动态")
+    public R cancelLikeTrend(@RequestParam("trendId") Integer trendId) {
+        // 先查询是否点赞过
+        Subject subject = SecurityUtils.getSubject();
+        Integer userId = JwtUtils.getUserId(subject.getPrincipals().toString());
+
+        Example example = new Example(Likes.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("trendId", trendId).andEqualTo("userId",userId);
+
+        // 删除点赞
+        likesMapper.deleteByExample(example);
+        //更新动态中的点赞数
+        return R.success(likesMapper.decreaseTrendLikesCount(trendId));
+    }
+
     @PostMapping("/comm")
     @RequiresAuthentication
     @ApiOperation("点赞评论")
@@ -110,5 +128,22 @@ public class LikeController {
         likesMapper.insert(newLikes);
         //更新动态中的点赞数
         return R.success(likesMapper.increaseCommLikesCount(commId));
+    }
+
+    @DeleteMapping("/comm")
+    @RequiresAuthentication
+    @ApiOperation("取消点赞评论")
+    public R cancelLikeComm(@RequestParam("commId") Integer commId) {
+        Subject subject = SecurityUtils.getSubject();
+        Integer userId = JwtUtils.getUserId(subject.getPrincipals().toString());
+
+        Example example = new Example(Likes.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("commentId", commId).andEqualTo("userId",userId);
+
+        // 删除点赞记录
+        likesMapper.deleteByExample(example);
+        //更新动态中的点赞数
+        return R.success(likesMapper.decreaseCommLikesCount(commId));
     }
 }
