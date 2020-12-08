@@ -8,11 +8,14 @@ import io.swagger.v3.oas.annotations.tags.Tags;
 import me.cocode.jike.common.cro.P;
 import me.cocode.jike.common.cro.R;
 import me.cocode.jike.common.cro.ResultCode;
+import me.cocode.jike.dao.UserInfoMapper;
 import me.cocode.jike.dao.UsersMapper;
+import me.cocode.jike.dto.UserPersonalDto;
 import me.cocode.jike.entity.Users;
 import me.cocode.jike.security.JwtUtils;
 import me.cocode.jike.service.UserService;
 import org.apache.catalina.User;
+import org.apache.ibatis.annotations.Param;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.crypto.hash.Md5Hash;
@@ -43,12 +46,15 @@ public class UsersController {
     private UserService userService;
 
 
+    @Autowired
+    private UserInfoMapper userInfoMapper;
+
     @PostMapping
     @ApiOperation("用户注册")
     public R saveUser(@RequestParam("userName") String userName,
-                               @RequestParam("password") String password){
+                      @RequestParam("password") String password) {
         Users byName = userService.selectOneByName(userName);
-        if (byName != null){
+        if (byName != null) {
             return R.failed("用户名已存在");
         }
         Users newUser = new Users();
@@ -60,17 +66,17 @@ public class UsersController {
 
     @PostMapping("/login")
     @ApiOperation("用户登录")
-    public R login(@RequestParam("userName") String userName,@RequestParam("password") String password){
+    public R login(@RequestParam("userName") String userName, @RequestParam("password") String password) {
         Users byName = userService.selectOneByName(userName);
-        if (byName == null){
+        if (byName == null) {
             return R.failed("账号不存在!");
         }
         logger.info("byName => " + byName.toString());
         String crypto = new Md5Hash(password, userName, 3).toString();
-        logger.info("crypto => " +crypto );
-        if (byName.getPassword().equals(crypto)){
+        logger.info("crypto => " + crypto);
+        if (byName.getPassword().equals(crypto)) {
             String token = JwtUtils.sign(byName.getId(), crypto);
-            return R.success(token,"登录成功");
+            return R.success(token, "登录成功");
         }
         return R.failed("账号或密码错误");
     }
@@ -79,16 +85,69 @@ public class UsersController {
     @GetMapping("/logout")
     @ApiOperation("用户登出")
     @RequiresAuthentication
-    public R logout(){
+    public R logout() {
         Subject subject = SecurityUtils.getSubject();
         if (subject.isAuthenticated()) {
             subject.logout();
             return R.success(null);
-        }else {
+        } else {
             return R.failed("登出失败,未认证!");
         }
     }
 
 
+    @GetMapping("/info")
+    @ApiOperation("获取用户基本信息")
+    @RequiresAuthentication
+    public R<Users> getUserInfo() {
+        Subject subject = SecurityUtils.getSubject();
+        Integer userId = JwtUtils.getUserId(subject.getPrincipals().toString());
+        Example example = new Example(Users.class);
+        example.selectProperties("userName", "avatar", "signature", "following", "followed", "cover")
+                .and()
+                .andEqualTo("id", userId);
+        return R.success(userService.selectOneByExample(example));
+    }
+
+    @GetMapping("/info/others")
+    @ApiOperation("获取其他用户基本信息")
+    public R<Users> getUserInfo(@RequestParam("userId") Integer userId) {
+        Example example = new Example(Users.class);
+        example.selectProperties("userName", "avatar", "signature", "following", "followed", "cover")
+                .and()
+                .andEqualTo("id", userId);
+        return R.success(userService.selectOneByExample(example));
+    }
+
+    @GetMapping("/personal")
+    @RequiresAuthentication
+    @ApiOperation("获取用户自己的档案")
+    public R<UserPersonalDto> getUserPersonal() {
+        Subject subject = SecurityUtils.getSubject();
+        Integer userId = JwtUtils.getUserId(subject.getPrincipals().toString());
+        return R.success(userInfoMapper.getUserPersonalInfo(userId));
+    }
+
+    @GetMapping("/personal/others")
+    @ApiOperation("获取其他用户的档案")
+    public R<UserPersonalDto> getUserPersonal(@RequestParam("userId") Integer userId) {
+        return R.success(userInfoMapper.getUserPersonalInfo(userId));
+    }
+
+    @PostMapping("/personal")
+    @RequiresAuthentication
+    @ApiOperation("修改个人档案")
+    public R updatePersonal(@RequestBody UserPersonalDto userPersonalDto) {
+        Subject subject = SecurityUtils.getSubject();
+        Integer userId = JwtUtils.getUserId(subject.getPrincipals().toString());
+        return R.success(userInfoMapper.updateUserPersonal(userPersonalDto.getUserName(),
+                userPersonalDto.getUserAvatar(),
+                userPersonalDto.getSignature(),
+                userPersonalDto.getCover(),
+                userPersonalDto.getBirthday(),
+                userPersonalDto.getGender(),
+                userPersonalDto.getEmotion(),
+                userId));
+    }
 
 }

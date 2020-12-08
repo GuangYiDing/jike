@@ -58,7 +58,7 @@ public class Comments implements Serializable {
     /**
      * 点赞数
      */
-    @Column(name = "likes_count",insertable = false)
+    @Column(name = "likes_count")
     @ApiModelProperty("点赞数")
     private Integer likesCount;
 

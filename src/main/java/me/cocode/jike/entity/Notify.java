@@ -48,6 +48,13 @@ public class Notify implements Serializable {
     @ApiModelProperty("是否消费")
     private String isConfirmed;
 
+    /**
+     * 消息内容
+     */
+    @Column(name = "message")
+    @ApiModelProperty("消息内容")
+    private String message;
+
     private static final long serialVersionUID = 1L;
 
     @Override
@@ -61,6 +68,7 @@ public class Notify implements Serializable {
         sb.append(", fromUserId=").append(fromUserId);
         sb.append(", createTime=").append(createTime);
         sb.append(", isConfirmed=").append(isConfirmed);
+        sb.append(", message=").append(message);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

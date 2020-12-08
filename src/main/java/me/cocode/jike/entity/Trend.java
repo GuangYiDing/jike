@@ -37,19 +37,19 @@ public class Trend implements Serializable {
     private String content;
 
     /**
-     * 动态图片 动态中的图片路径列表
+     * 动态图片
      */
     @Column(name = "images")
-    @ApiModelProperty("动态图片 动态中的图片路径列表")
+    @ApiModelProperty("动态图片")
     private String images;
 
     /**
      * 发布时间
      */
     @Column(name = "create_time")
+    @ApiModelProperty("发布时间")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @ApiModelProperty("发布时间")
     private Date createTime;
 
     /**
@@ -59,8 +59,19 @@ public class Trend implements Serializable {
     @ApiModelProperty("圈子id")
     private Integer zoneId;
 
+    /**
+     * 点赞数
+     */
+    @Column(name = "likes_count")
+    @ApiModelProperty("点赞数")
+    private Integer likesCount;
 
-
+    /**
+     * 评论数
+     */
+    @Column(name = "comments_count")
+    @ApiModelProperty("评论数")
+    private Integer commentsCount;
 
     private static final long serialVersionUID = 1L;
 
@@ -76,6 +87,8 @@ public class Trend implements Serializable {
         sb.append(", images=").append(images);
         sb.append(", createTime=").append(createTime);
         sb.append(", zoneId=").append(zoneId);
+        sb.append(", likesCount=").append(likesCount);
+        sb.append(", commentsCount=").append(commentsCount);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="me.cocode.jike.dao.TrendMapper">
+<mapper namespace="me.cocode.jike.mapper.TrendMapper">
   <resultMap id="BaseResultMap" type="me.cocode.jike.entity.Trend">
     <!--
       WARNING - @mbg.generated
@@ -11,6 +11,7 @@
     <result column="images" jdbcType="VARCHAR" property="images" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="zone_id" jdbcType="INTEGER" property="zoneId" />
+    <result column="likes_count" jdbcType="INTEGER" property="likesCount" />
+    <result column="comments_count" jdbcType="INTEGER" property="commentsCount" />
   </resultMap>
-
 </mapper>

@@ -10,8 +10,6 @@ import lombok.Data;
 @ApiModel("用户表 用户表,主要存贮访问频次最高的信息")
 @Table(name = "users")
 public class Users implements Serializable {
-    public static final String DEFAULT_AVATAR = "/avatar.png";
-    public static final String DEFAULT_SIGNATURE = "生活哪有这么多乐趣";
     /**
      * 用户主键 用户唯一主键
      */
@@ -29,16 +27,16 @@ public class Users implements Serializable {
     private String userName;
 
     /**
-     * 头像 头像路径
+     * 头像
      */
-    @Column(name = "avatar",insertable = false)
-    @ApiModelProperty("头像 头像路径")
+    @Column(name = "avatar")
+    @ApiModelProperty("头像")
     private String avatar;
 
     /**
      * 签名
      */
-    @Column(name = "signature",insertable = false)
+    @Column(name = "signature")
     @ApiModelProperty("签名")
     private String signature;
 
@@ -52,16 +50,37 @@ public class Users implements Serializable {
     /**
      * 角色
      */
-    @Column(name = "role",insertable = false)
+    @Column(name = "role")
     @ApiModelProperty("角色")
     private String role;
 
     /**
      * 权限
      */
-    @Column(name = "permission",insertable = false)
+    @Column(name = "permission")
     @ApiModelProperty("权限")
     private String permission;
+
+    /**
+     * 关注数
+     */
+    @Column(name = "following")
+    @ApiModelProperty("关注数")
+    private Integer following;
+
+    /**
+     * 被关注数
+     */
+    @Column(name = "followed")
+    @ApiModelProperty("被关注数")
+    private Integer followed;
+
+    /**
+     * 背景图
+     */
+    @Column(name = "cover")
+    @ApiModelProperty("背景图")
+    private String cover;
 
     private static final long serialVersionUID = 1L;
 
@@ -78,6 +97,9 @@ public class Users implements Serializable {
         sb.append(", password=").append(password);
         sb.append(", role=").append(role);
         sb.append(", permission=").append(permission);
+        sb.append(", following=").append(following);
+        sb.append(", followed=").append(followed);
+        sb.append(", cover=").append(cover);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

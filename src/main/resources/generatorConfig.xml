@@ -50,7 +50,7 @@
 
         <!--生成全部表tableName设为%-->
 
-        <table tableName="likes">
+        <table tableName="%">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
     </context>

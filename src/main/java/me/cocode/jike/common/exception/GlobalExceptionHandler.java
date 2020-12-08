@@ -22,43 +22,36 @@ import java.io.PrintWriter;
  * @author xiaodingsiren
  */
 @Slf4j
-@RestControllerAdvice
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BizException.class)
-    public R<String> exceptionHandler(HttpServletRequest req, BizException e){
+    @ResponseBody
+    public R exceptionHandler(HttpServletRequest req, BizException e){
         log.error("发生业务异常!原因是:"+e.getMessage());
         return R.failed(e.getCode(),e.getMsg());
     }
 
 
-//    @ExceptionHandler(NullPointerException.class)
-//    public R<String> exceptionHandler(HttpServletRequest req, NullPointerException e){
-//        log.error("空指针异常!原因是"+e);
-//        return R.failed(ResultCode.BODY_NOT_MATCH);
-//    }
+    @ExceptionHandler(NullPointerException.class)
+    public R exceptionHandler(HttpServletRequest req, NullPointerException e){
+        log.error("空指针异常!原因是"+e);
+        return R.failed(ResultCode.BODY_NOT_MATCH);
+    }
 
 
-//    @ExceptionHandler(Exception.class)
-//    @ResponseBody
-//    public R<String> exceptionHandler(HttpServletRequest req, Exception e){
-//        log.error("其他异常!原因是"+e);
-//        return R.failed(ResultCode.FAILED);
-//    }
+    @ExceptionHandler(Exception.class)
+    @ResponseBody
+    public R exceptionHandler(HttpServletRequest req, Exception e){
+        log.error("其他异常!原因是"+e);
+        return R.failed(ResultCode.FAILED);
+    }
 
 
     @ExceptionHandler(AuthenticationException.class)
-    public R<String> exceptionHandler(AuthenticationException e,HttpServletResponse response){
-        response.setCharacterEncoding("UTF-8");
-        response.setContentType("application/json; charset=utf-8");
-        try {
-            PrintWriter writer = response.getWriter();
-            writer.write(JSON.toJSONString(R.failed(e.getMessage())));
-            writer.flush();
-            writer.close();
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
+    @ResponseBody
+    public R exceptionHandler(HttpServletRequest req,AuthenticationException e){
+        log.error("认证异常异常!原因是:"+e.getMessage());
         return R.failed(e.getMessage());
     }
 }

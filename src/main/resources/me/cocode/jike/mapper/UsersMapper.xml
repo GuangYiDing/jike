@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="me.cocode.jike.dao.UsersMapper">
+<mapper namespace="me.cocode.jike.mapper.UsersMapper">
   <resultMap id="BaseResultMap" type="me.cocode.jike.entity.Users">
     <!--
       WARNING - @mbg.generated
@@ -12,5 +12,8 @@
     <result column="password" jdbcType="VARCHAR" property="password" />
     <result column="role" jdbcType="VARCHAR" property="role" />
     <result column="permission" jdbcType="VARCHAR" property="permission" />
+    <result column="following" jdbcType="INTEGER" property="following" />
+    <result column="followed" jdbcType="INTEGER" property="followed" />
+    <result column="cover" jdbcType="VARCHAR" property="cover" />
   </resultMap>
 </mapper>

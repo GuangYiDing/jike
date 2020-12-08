@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Update;
 
 public interface LikesMapper extends CommonMapper<Likes> {
     /**
-     * 点赞动态
+     * 点赞动态 更新动态表中点赞数字段
      */
     @Update("UPDATE trend " +
             "SET trend.likes_count=(SELECT likes_count FROM ( " +
@@ -16,7 +16,7 @@ public interface LikesMapper extends CommonMapper<Likes> {
 
 
     /**
-     * 点赞评论
+     * 点赞评论 更新评论表中点赞数字段
      */
     @Update("UPDATE comments " +
             "SET comments.likes_count=(SELECT likes_count FROM ( " +

@@ -60,7 +60,7 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
             try {
                 executeLogin(request, response);
             } catch (Exception e) {
-                throw new BizException("登录权限不足!", ResultCode.FORBIDDEN.getCode(), e);
+                throw new BizException(ResultCode.FORBIDDEN);
             }
         }
         return true;

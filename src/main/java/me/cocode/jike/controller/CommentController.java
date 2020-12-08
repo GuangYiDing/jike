@@ -13,6 +13,7 @@ import me.cocode.jike.service.CommentService;
 import me.cocode.jike.service.TrendService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
+import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,9 +51,10 @@ public class CommentController {
     @PostMapping
     @RequiresAuthentication
     @ApiOperation("发布评论")
-    public R postComment(@RequestBody String postCommJson,@RequestHeader("Authorization") String token){
+    public R postComment(@RequestBody String postCommJson){
         // 添加新评论
-        Integer userId = JwtUtils.getUserId(token);
+        Subject subject = SecurityUtils.getSubject();
+        Integer userId = JwtUtils.getUserId(subject.getPrincipals().toString());
         Comments comments = JSON.parseObject(postCommJson, Comments.class);
         comments.setCreateTime(new Date());
         comments.setUserId(userId);

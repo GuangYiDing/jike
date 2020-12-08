@@ -18,6 +18,13 @@ spring:
       max-file-size: 100MB
       max-request-size: 100MB
       enabled: true
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: admin
+    password: a1519877813
+    virtual-host: /
+
 
 
 logging:

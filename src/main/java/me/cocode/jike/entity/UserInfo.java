@@ -3,7 +3,6 @@ package me.cocode.jike.entity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
-import java.util.Date;
 import javax.persistence.*;
 import lombok.Data;
 
@@ -21,46 +20,25 @@ public class UserInfo implements Serializable {
     private Integer id;
 
     /**
-     * 背景图 用户名片背景图
-     */
-    @Column(name = "cover")
-    @ApiModelProperty("背景图 用户名片背景图")
-    private String cover;
-
-    /**
      * 性别 0为男1位女
      */
-    @Column(name = "female")
+    @Column(name = "gender")
     @ApiModelProperty("性别 0为男1位女")
-    private String female;
+    private String gender;
 
     /**
-     * 情感 用户的情感状态
+     * 情感
      */
-    @Column(name = "bachelor")
-    @ApiModelProperty("情感 用户的情感状态")
-    private String bachelor;
+    @Column(name = "emotion")
+    @ApiModelProperty("情感")
+    private String emotion;
 
     /**
-     * 生日 用户生日
+     * 生日
      */
     @Column(name = "birthday")
-    @ApiModelProperty("生日 用户生日")
-    private Date birthday;
-
-    /**
-     * 所在地 用户所在地
-     */
-    @Column(name = "location")
-    @ApiModelProperty("所在地 用户所在地")
-    private String location;
-
-    /**
-     * 学校 所在学校
-     */
-    @Column(name = "school")
-    @ApiModelProperty("学校 所在学校")
-    private String school;
+    @ApiModelProperty("生日")
+    private String birthday;
 
     private static final long serialVersionUID = 1L;
 
@@ -71,12 +49,9 @@ public class UserInfo implements Serializable {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", cover=").append(cover);
-        sb.append(", female=").append(female);
-        sb.append(", bachelor=").append(bachelor);
+        sb.append(", gender=").append(gender);
+        sb.append(", emotion=").append(emotion);
         sb.append(", birthday=").append(birthday);
-        sb.append(", location=").append(location);
-        sb.append(", school=").append(school);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
