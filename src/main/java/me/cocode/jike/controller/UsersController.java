@@ -49,6 +49,10 @@ public class UsersController {
     @Autowired
     private UserInfoMapper userInfoMapper;
 
+
+    @Autowired
+    private UsersMapper usersMapper;
+
     @PostMapping
     @ApiOperation("用户注册")
     public R saveUser(@RequestParam("userName") String userName,
@@ -95,6 +99,12 @@ public class UsersController {
         }
     }
 
+
+    @GetMapping("/info/cards")
+    @ApiOperation("获取用户卡片")
+    public R<List<UserPersonalDto>> getUserCards(){
+        return R.success(userInfoMapper.getUserInfoCard());
+    }
 
     @GetMapping("/info")
     @ApiOperation("获取用户基本信息")

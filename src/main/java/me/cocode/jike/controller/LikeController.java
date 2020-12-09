@@ -20,7 +20,6 @@ import java.util.Map;
 /**
  * 2020/12/3 15:12
  * 点赞管理
- *
  * @author xiaodingsiren
  */
 @RestController

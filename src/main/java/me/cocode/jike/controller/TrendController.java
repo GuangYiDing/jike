@@ -82,4 +82,13 @@ public class TrendController {
         return R.success(trendMapper.getTrendByUserId(userId));
     }
 
+    @GetMapping("/following")
+    @RequiresAuthentication
+    @ApiOperation("获取已关注用户的动态")
+    public R<List<TrendDto>>  getFollowingUserTrends(){
+        Subject subject = SecurityUtils.getSubject();
+        Integer userId = JwtUtils.getUserId(subject.getPrincipals().toString());
+        return R.success(trendMapper.getFollowingUserTrends(userId));
+    }
+
 }

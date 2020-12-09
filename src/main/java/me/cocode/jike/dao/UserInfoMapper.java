@@ -8,6 +8,8 @@ import org.apache.ibatis.annotations.ResultType;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.util.List;
+
 public interface UserInfoMapper extends CommonMapper<UserInfo> {
 
 
@@ -29,4 +31,9 @@ public interface UserInfoMapper extends CommonMapper<UserInfo> {
                            @Param("gender") String gender,
                            @Param("emotion") String emotion,
                            @Param("userId") Integer userId);
+
+
+
+    @Select("SELECT u.id,u.user_name userName,u.avatar userAvatar,u.signature,ui.gender,ui.emotion,ui.birthday FROM users u,user_info ui WHERE u.id=ui.id")
+    List<UserPersonalDto> getUserInfoCard();
 }
