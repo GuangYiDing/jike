@@ -47,7 +47,7 @@ public class TrendController {
         Trend trend = trendService.postTrend(postTrendDto);
         trend.setUserId(userId);
         logger.info("trend => " + trend.toString());
-        trendService.insert(trend);
+        trendService.insertSelective(trend);
         return ResultCode.SUCCESS;
     }
 
@@ -89,6 +89,17 @@ public class TrendController {
         Subject subject = SecurityUtils.getSubject();
         Integer userId = JwtUtils.getUserId(subject.getPrincipals().toString());
         return R.success(trendMapper.getFollowingUserTrends(userId));
+    }
+
+
+    @DeleteMapping("/profile")
+    @RequiresAuthentication
+    @ApiOperation("删除档案中的动态")
+    public R deleteProfileTrend(@RequestParam("trendId") Integer trendId){
+        trendMapper.deletePostedTrend(trendId);
+        trendMapper.deletePostedTrendLikes(trendId);
+        trendMapper.deletePostedTrendComm(trendId);
+        return  R.success(null);
     }
 
 }

@@ -59,7 +59,7 @@ public class CommentController {
         comments.setCreateTime(new Date());
         comments.setUserId(userId);
         logger.info(" new Comment" + comments.toString());
-        commentService.insert(comments);
+        commentService.insertSelective(comments);
         // 更新动态评论值
         trendService.increaseCommentCount(comments.getTrendId());
         return R.success(null);

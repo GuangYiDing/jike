@@ -2,7 +2,9 @@ package me.cocode.jike.dao;
 
 import me.cocode.jike.common.service.CommonMapper;
 import me.cocode.jike.dto.TrendDto;
+import me.cocode.jike.entity.Follow;
 import me.cocode.jike.entity.Trend;
+import me.cocode.jike.entity.Users;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -30,8 +32,23 @@ public interface TrendMapper extends CommonMapper<Trend> {
     /**
      * 获取已关注用户发布的动态
      */
-    @Select("SELECT t.id trendId,z.zone_name zoneName,z.avatar zoneAvatar,u.user_name userName,u.id userId,u.avatar userAvatar,t.images,t.content,t.likes_count likesCount,t.comments_count commentsCount,t.create_time createTime FROM trend t INNER JOIN users u INNER JOIN zones z ON t.user_id=u.id AND t.zone_id=z.id WHERE u.id  in (\n" +
+    @Select("SELECT t.id trendId,z.zone_name zoneName,z.avatar zoneAvatar,u.user_name userName,u.id userId,u.avatar userAvatar,t.images,t.content,t.likes_count likesCount,t.comments_count commentsCount,t.create_time createTime FROM trend t INNER JOIN users u INNER JOIN zones z ON t.user_id=u.id AND t.zone_id=z.id WHERE u.id  in ( " +
             "SELECT following_user_id FROM follow WHERE follow.user_id=#{userId}) ORDER BY create_time DESC")
     List<TrendDto> getFollowingUserTrends(@Param("userId")Integer userId);
+
+
+
+
+    @Delete("DELETE FROM trend WHERE trend.id= #{trendId}")
+    int deletePostedTrend(@Param("trendId") Integer trendId);
+
+
+    @Delete("DELETE FROM likes WHERE likes.trend_id = #{trendId}")
+    int deletePostedTrendLikes(@Param("trendId") Integer trendId);
+
+    @Delete("DELETE FROM comments WHERE comments.trend_id = #{trendId} ")
+    int deletePostedTrendComm(@Param("trendId") Integer trendId);
+
+
 
 }

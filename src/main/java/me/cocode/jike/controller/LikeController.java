@@ -4,12 +4,16 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import me.cocode.jike.common.cro.R;
+import me.cocode.jike.config.RabbitmqConfig;
 import me.cocode.jike.dao.LikesMapper;
+import me.cocode.jike.dao.TokenMapper;
 import me.cocode.jike.entity.Likes;
+import me.cocode.jike.entity.Token;
 import me.cocode.jike.security.JwtUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.subject.Subject;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import tk.mybatis.mapper.entity.Example;
@@ -31,6 +35,8 @@ public class LikeController {
     @Autowired
     private LikesMapper likesMapper;
 
+
+
     @GetMapping("/trend")
     @RequiresAuthentication
     @ApiOperation("获取用户点赞过的动态")
@@ -38,7 +44,6 @@ public class LikeController {
         // 获取用户id
         Subject subject = SecurityUtils.getSubject();
         Integer userId = JwtUtils.getUserId(subject.getPrincipals().toString());
-
         Example example = new Example(Likes.class);
         example.selectProperties("trendId");
         Example.Criteria criteria = example.createCriteria();
@@ -83,7 +88,7 @@ public class LikeController {
         newLikes.setCommentId(0);
        likesMapper.insert(newLikes);
         //更新动态中的点赞数
-        return R.success(likesMapper.increaseTrendLikesCount(trendId));
+        return R.success( likesMapper.increaseTrendLikesCount(trendId));
     }
 
     @DeleteMapping("/trend")
@@ -109,6 +114,7 @@ public class LikeController {
     @ApiOperation("点赞评论")
     public R likeComm(@RequestBody Map<String,Object> commIdJson) {
         Integer commId = (Integer) commIdJson.get("commId");
+        Integer trendId = (Integer) commIdJson.get("trendId");
         // 先查询是否点赞过
         Subject subject = SecurityUtils.getSubject();
         Integer userId = JwtUtils.getUserId(subject.getPrincipals().toString());
@@ -121,7 +127,7 @@ public class LikeController {
         }
         // 新增点赞
         Likes newLikes = new Likes();
-        newLikes.setTrendId(0);
+        newLikes.setTrendId(trendId);
         newLikes.setUserId(userId);
         newLikes.setCommentId(commId);
         likesMapper.insert(newLikes);

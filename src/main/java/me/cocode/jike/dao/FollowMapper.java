@@ -2,6 +2,7 @@ package me.cocode.jike.dao;
 
 import me.cocode.jike.common.service.CommonMapper;
 import me.cocode.jike.entity.Follow;
+import me.cocode.jike.entity.Users;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
@@ -46,11 +47,24 @@ public interface FollowMapper extends CommonMapper<Follow> {
             "SELECT users.followed FROM users WHERE users.id=#{beFollowedUserId}) AS t)-1 WHERE users.id=#{beFollowedUserId}")
     int decreaseUserFollowed(@Param("beFollowedUserId") Integer beFollowedUserId);
 
+
     /**
-     * 获取已经关注的用户
+     * 获取某个用户的关注列表
      */
-    @Select("SELECT users.id,users.user_name FROM users WHERE users.id IN ( " +
-            "SELECT following_user_id FROM follow WHERE follow.user_id=#{userId})")
-    List<Integer> getFollowingUserIds(@Param("userId") Integer userId);
+    @Select("SELECT u.id,u.user_name userName,u.signature,u.avatar  FROM users u WHERE u.id IN ( " +
+            "SELECT f.following_user_id FROM follow f WHERE f.user_id=#{userId})")
+    List<Users> getUserFollowing(@Param("userId") Integer userId);
+
+
+    /**
+     * 获取某个用户的被关注列表
+     */
+    @Select("SELECT u.id,u.user_name userName,u.signature,u.avatar  FROM users u WHERE u.id IN ( " +
+            "SELECT f.user_id FROM follow f WHERE f.following_user_id=#{userId})")
+    List<Users> getUserFollowed(@Param("userId") Integer userId);
+
+
+
+
 
 }

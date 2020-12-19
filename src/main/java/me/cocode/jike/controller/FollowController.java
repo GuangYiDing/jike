@@ -5,7 +5,9 @@ import io.swagger.annotations.ApiOperation;
 import me.cocode.jike.common.cro.R;
 import me.cocode.jike.dao.FollowMapper;
 import me.cocode.jike.entity.Follow;
+import me.cocode.jike.entity.Users;
 import me.cocode.jike.security.JwtUtils;
+import org.apache.ibatis.annotations.Param;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.subject.Subject;
@@ -28,14 +30,39 @@ public class FollowController {
     private FollowMapper followMapper;
 
 
-    @GetMapping
+    @GetMapping("/Aing")
     @RequiresAuthentication
-    @ApiOperation("获取已经关注的用户们")
-    public R<List<Integer>> getFollowingUsers(){
+    @ApiOperation("获取用户的关注列表")
+    public R<List<Users>> getFollowingUsers(){
         Subject subject = SecurityUtils.getSubject();
         Integer userId = JwtUtils.getUserId(subject.getPrincipals().toString());
-        return R.success(followMapper.getFollowingUserIds(userId));
+        return R.success(followMapper.getUserFollowing(userId));
     }
+
+    @GetMapping("/Aed")
+    @RequiresAuthentication
+    @ApiOperation("获取用户的被关注列表")
+    public R<List<Users>> getFollowedUsers(){
+        Subject subject = SecurityUtils.getSubject();
+        Integer userId = JwtUtils.getUserId(subject.getPrincipals().toString());
+        return R.success(followMapper.getUserFollowed(userId));
+    }
+
+
+
+    @GetMapping("/ing")
+    @ApiOperation("获取其他用户的关注列表")
+    public R<List<Users>> getFollowingUsers(@RequestParam("userId") Integer userId){
+        return R.success(followMapper.getUserFollowing(userId));
+    }
+
+
+    @GetMapping("/ed")
+    @ApiOperation("获取其他用户的被关注列表")
+    public R<List<Users>> getFollowedUsers(@RequestParam("userId") Integer userId){
+        return R.success(followMapper.getUserFollowed(userId));
+    }
+
 
     @PostMapping
     @RequiresAuthentication
@@ -49,6 +76,9 @@ public class FollowController {
         Follow follow = new Follow();
         follow.setUserId(userId);
         follow.setFollowingUserId(followingUserId);
+        if (followMapper.selectOne(follow)!=null){
+            return R.failed("不能重复关注哦");
+        }
         followMapper.insert(follow);
         followMapper.increaseUserFollowing(userId);
         followMapper.increaseUserFollowed(followingUserId);
@@ -64,6 +94,9 @@ public class FollowController {
         Follow follow = new Follow();
         follow.setUserId(userId);
         follow.setFollowingUserId(cancelFollowingUserId);
+        if (followMapper.selectOne(follow)==null){
+            return R.failed("不能重复取消关注哦");
+        }
         followMapper.delete(follow);
         followMapper.decreaseUserFollowing(userId);
         followMapper.decreaseUserFollowed(cancelFollowingUserId);

@@ -8,9 +8,12 @@ import io.swagger.v3.oas.annotations.tags.Tags;
 import me.cocode.jike.common.cro.P;
 import me.cocode.jike.common.cro.R;
 import me.cocode.jike.common.cro.ResultCode;
+import me.cocode.jike.dao.TokenMapper;
 import me.cocode.jike.dao.UserInfoMapper;
 import me.cocode.jike.dao.UsersMapper;
 import me.cocode.jike.dto.UserPersonalDto;
+import me.cocode.jike.entity.Token;
+import me.cocode.jike.entity.UserInfo;
 import me.cocode.jike.entity.Users;
 import me.cocode.jike.security.JwtUtils;
 import me.cocode.jike.service.UserService;
@@ -27,6 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import tk.mybatis.mapper.entity.Example;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -40,7 +44,6 @@ import java.util.List;
 public class UsersController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
 
     @Autowired
     private UserService userService;
@@ -64,7 +67,8 @@ public class UsersController {
         Users newUser = new Users();
         newUser.setUserName(userName);
         newUser.setPassword(new Md5Hash(password, userName, 3).toString());
-        userService.insert(newUser);
+        userService.insertSelective(newUser);
+        userInfoMapper.insert(new UserInfo());
         return R.success(null);
     }
 
@@ -102,7 +106,7 @@ public class UsersController {
 
     @GetMapping("/info/cards")
     @ApiOperation("获取用户卡片")
-    public R<List<UserPersonalDto>> getUserCards(){
+    public R<List<UserPersonalDto>> getUserCards() {
         return R.success(userInfoMapper.getUserInfoCard());
     }
 
@@ -113,7 +117,7 @@ public class UsersController {
         Subject subject = SecurityUtils.getSubject();
         Integer userId = JwtUtils.getUserId(subject.getPrincipals().toString());
         Example example = new Example(Users.class);
-        example.selectProperties("userName", "avatar", "signature", "following", "followed", "cover")
+        example.selectProperties("id","userName", "avatar", "signature", "following", "followed", "cover")
                 .and()
                 .andEqualTo("id", userId);
         return R.success(userService.selectOneByExample(example));
