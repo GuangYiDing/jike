@@ -12,7 +12,9 @@ import java.util.List;
 
 public interface UserInfoMapper extends CommonMapper<UserInfo> {
 
-
+    /**
+     * 获取用户的档案信息
+     */
     @Select("SELECT u.user_name userName,u.avatar userAvatar,u.signature signature,u.cover cover,ui.gender gender,ui.emotion emotion,ui.birthday birthday FROM users u INNER JOIN user_info ui ON u.id=#{userId} and ui.id = #{userId} ")
     @ResultType(UserPersonalDto.class)
     UserPersonalDto getUserPersonalInfo(@Param("userId") Integer userId);
@@ -33,7 +35,9 @@ public interface UserInfoMapper extends CommonMapper<UserInfo> {
                            @Param("userId") Integer userId);
 
 
-
+    /**
+     * 获取推荐用户时的卡片信息
+     */
     @Select("SELECT u.id,u.user_name userName,u.avatar userAvatar,u.signature,ui.gender,ui.emotion,ui.birthday FROM users u,user_info ui WHERE u.id=ui.id")
     List<UserPersonalDto> getUserInfoCard();
 }
