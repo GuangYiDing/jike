@@ -1,16 +1,20 @@
 package me.cocode.jike.service.impl;
 
 import me.cocode.jike.common.service.CommonMapper;
-import me.cocode.jike.common.service.CommonService;
 import me.cocode.jike.common.service.impl.CommonServiceImpl;
 import me.cocode.jike.dao.UsersMapper;
 import me.cocode.jike.entity.Users;
+import me.cocode.jike.entity.WxAccount;
 import me.cocode.jike.service.UserService;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
+
 import tk.mybatis.mapper.entity.Example;
 
-import java.util.List;
+import javax.annotation.Resource;
+import java.net.URI;
 
 /**
  * 2020/11/25 21:22
@@ -36,7 +40,6 @@ public class UserServiceImpl extends CommonServiceImpl<Users> implements UserSer
         criteria.andEqualTo("userName", userName);
         return usersMapper.selectOneByExample(example);
     }
-
 
 
 }

@@ -3,33 +3,40 @@ package me.cocode.jike.controller;
 import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Tag;
-import io.swagger.v3.oas.annotations.tags.Tags;
-import me.cocode.jike.common.cro.P;
 import me.cocode.jike.common.cro.R;
-import me.cocode.jike.common.cro.ResultCode;
-import me.cocode.jike.dao.TokenMapper;
 import me.cocode.jike.dao.UserInfoMapper;
-import me.cocode.jike.dao.UsersMapper;
+import me.cocode.jike.dao.WxAccountMapper;
+import me.cocode.jike.dto.Code2SessionDTO;
+import me.cocode.jike.dto.MpLoginCallBackDto;
 import me.cocode.jike.dto.UserPersonalDto;
-import me.cocode.jike.entity.Token;
+import me.cocode.jike.dto.WxUserInfoDto;
 import me.cocode.jike.entity.UserInfo;
 import me.cocode.jike.entity.Users;
+import me.cocode.jike.entity.WxAccount;
 import me.cocode.jike.security.JwtUtils;
 import me.cocode.jike.service.UserService;
-import org.apache.catalina.User;
-import org.apache.ibatis.annotations.Param;
+import me.cocode.jike.service.WxAccountService;
+import me.cocode.jike.utils.mbg.HttpUtil;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import tk.mybatis.mapper.entity.Example;
 
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.net.URI;
 import java.util.Date;
 import java.util.List;
 
@@ -50,11 +57,14 @@ public class UsersController {
 
 
     @Autowired
+    private RestTemplate restTemplate;
+
+    @Autowired
     private UserInfoMapper userInfoMapper;
 
 
     @Autowired
-    private UsersMapper usersMapper;
+    private WxAccountService wxAccountService;
 
     @PostMapping
     @ApiOperation("用户注册")
@@ -71,6 +81,72 @@ public class UsersController {
         userInfoMapper.insert(new UserInfo());
         return R.success(null);
     }
+
+    /**
+     * 微信的 code2session 接口 获取微信用户信息
+     * 官方说明 : https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/login/auth.code2Session.html
+     */
+    private String code2Session(String jsCode) {
+        String code2SessionUrl = "https://api.weixin.qq.com/sns/jscode2session";
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("appid", "wx2cbe03c448b7c29a");
+        params.add("secret", "66c085217d0ffe939ac8ab0cfed60ba6");
+        params.add("js_code", jsCode);
+        params.add("grant_type", "authorization_code");
+        URI code2Session = HttpUtil.getURIwithParams(code2SessionUrl, params);
+        return restTemplate.exchange(code2Session, HttpMethod.GET, new HttpEntity<String>(new HttpHeaders()), String.class).getBody();
+    }
+
+    @PostMapping("/wxLogin")
+    @ApiOperation("微信用户登录")
+    public R login(@RequestBody MpLoginCallBackDto mpLoginCallBackDto) {
+        // 1. code2session返回JSON数据
+        String resultJson = code2Session(mpLoginCallBackDto.getCode());
+        WxUserInfoDto userInfoDto = mpLoginCallBackDto.getWxUserInfoDto();
+        if (resultJson == null || userInfoDto == null) {
+            return R.failed("登录失败");
+        }
+        //2 . 解析数据
+        Code2SessionDTO response = JSON.toJavaObject(JSON.parseObject(resultJson), Code2SessionDTO.class);
+        if (!"0".equals(response.getErrcode())) {
+            throw new AuthenticationException("code2session失败 : " + response.getErrmsg());
+        } else {
+            //3 . 先从本地数据库中查找用户是否存在
+            Example example = new Example(WxAccount.class);
+            example.selectProperties("id", "openId", "sessionKey", "userId", "lastTime")
+                    .and()
+                    .andEqualTo("openId", response.getOpenid());
+            WxAccount wxAccount = wxAccountService.selectOneByExample(example);
+            Users user;
+            //不存在就新建用户
+            if (wxAccount == null) {
+                wxAccount = new WxAccount();
+                // 整合用户表
+                user = new Users();
+                user.setPassword(new Md5Hash(response.getOpenid(), userInfoDto.getNickName(), 3).toString());
+                user.setUserName(userInfoDto.getNickName());
+                user.setAvatar(userInfoDto.getAvatarUrl());
+                userService.insertSelective(user);
+                userInfoMapper.insert(new UserInfo());
+                //获取插入后实体的id
+                Integer id = user.getId();
+                wxAccount.setOpenId(response.getOpenid());
+                wxAccount.setUserId(id);
+                wxAccount.setSessionKey(response.getSession_key());
+                wxAccount.setLastTime(new Date(System.currentTimeMillis()));
+                wxAccountService.insert(wxAccount);
+            }
+            user = userService.selectByPrimaryKey(wxAccount.getUserId());
+            //4 . 更新sessionKey和 登陆时间
+            wxAccount.setSessionKey(response.getSession_key());
+            wxAccount.setLastTime(new Date(System.currentTimeMillis()));
+            wxAccountService.updateByPrimaryKeySelective(wxAccount);
+            //5 . JWT 返回自定义登陆态 Token
+            String token = JwtUtils.sign(wxAccount.getUserId(), user.getPassword());
+            return R.success(token, "登录成功");
+        }
+    }
+
 
     @PostMapping("/login")
     @ApiOperation("用户登录")
@@ -117,7 +193,7 @@ public class UsersController {
         Subject subject = SecurityUtils.getSubject();
         Integer userId = JwtUtils.getUserId(subject.getPrincipals().toString());
         Example example = new Example(Users.class);
-        example.selectProperties("id","userName", "avatar", "signature", "following", "followed", "cover")
+        example.selectProperties("id", "userName", "avatar", "signature", "following", "followed", "cover")
                 .and()
                 .andEqualTo("id", userId);
         return R.success(userService.selectOneByExample(example));
