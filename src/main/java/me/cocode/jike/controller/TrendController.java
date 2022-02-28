@@ -17,6 +17,7 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,6 +40,7 @@ public class TrendController {
 
     @PostMapping
     @RequiresAuthentication
+    @Transactional(rollbackFor=Exception.class)
     @ApiOperation("发布动态")
     public ResultCode postTrend(@RequestBody String trendJson,@RequestHeader("Authorization") String token){
         PostTrendDto postTrendDto = JSON.parseObject(trendJson, PostTrendDto.class);
@@ -94,6 +96,7 @@ public class TrendController {
 
     @DeleteMapping("/profile")
     @RequiresAuthentication
+    @Transactional(rollbackFor=Exception.class)
     @ApiOperation("删除档案中的动态")
     public R deleteProfileTrend(@RequestParam("trendId") Integer trendId){
         trendMapper.deletePostedTrend(trendId);

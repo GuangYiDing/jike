@@ -24,6 +24,8 @@ import java.net.URI;
 @Service
 public class UserServiceImpl extends CommonServiceImpl<Users> implements UserService  {
 
+
+
     @Autowired
     private UsersMapper usersMapper;
 
@@ -42,4 +44,8 @@ public class UserServiceImpl extends CommonServiceImpl<Users> implements UserSer
     }
 
 
+    @Override
+    public int deleteUserById(Integer userId) {
+        return usersMapper.deleteUserById(userId);
+    }
 }

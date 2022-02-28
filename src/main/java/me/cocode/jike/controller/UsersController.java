@@ -4,12 +4,12 @@ import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import me.cocode.jike.common.cro.R;
-import me.cocode.jike.dao.UserInfoMapper;
-import me.cocode.jike.dao.WxAccountMapper;
+import me.cocode.jike.dao.*;
 import me.cocode.jike.dto.Code2SessionDTO;
 import me.cocode.jike.dto.MpLoginCallBackDto;
 import me.cocode.jike.dto.UserPersonalDto;
 import me.cocode.jike.dto.WxUserInfoDto;
+import me.cocode.jike.entity.Follow;
 import me.cocode.jike.entity.UserInfo;
 import me.cocode.jike.entity.Users;
 import me.cocode.jike.entity.WxAccount;
@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -55,6 +56,18 @@ public class UsersController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private TrendMapper trendMapper;
+
+    @Autowired
+    private LikesMapper likesMapper;
+
+    @Autowired
+    private CommentsMapper commentsMapper;
+
+    @Autowired
+    private FollowMapper followMapper;
+
 
     @Autowired
     private RestTemplate restTemplate;
@@ -76,7 +89,9 @@ public class UsersController {
         }
         Users newUser = new Users();
         newUser.setUserName(userName);
-        newUser.setPassword(new Md5Hash(password, userName, 3).toString());
+        String crypto = new Md5Hash(password, userName, 3).toString();
+        logger.info("name=> {},password => {},crypto => {}" ,userName, password,crypto);
+        newUser.setPassword(crypto);
         userService.insertSelective(newUser);
         userInfoMapper.insert(new UserInfo());
         return R.success(null);
@@ -90,7 +105,7 @@ public class UsersController {
         String code2SessionUrl = "https://api.weixin.qq.com/sns/jscode2session";
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("appid", "wx2cbe03c448b7c29a");
-        params.add("secret", "66c085217d0ffe939ac8ab0cfed60ba6");
+        params.add("secret", "d2a18754b34d32099d64de829331db63");
         params.add("js_code", jsCode);
         params.add("grant_type", "authorization_code");
         URI code2Session = HttpUtil.getURIwithParams(code2SessionUrl, params);
@@ -157,7 +172,7 @@ public class UsersController {
         }
         logger.info("byName => " + byName.toString());
         String crypto = new Md5Hash(password, userName, 3).toString();
-        logger.info("crypto => " + crypto);
+        logger.info("name=> {},password => {},crypto => {}" ,userName, password,crypto);
         if (byName.getPassword().equals(crypto)) {
             String token = JwtUtils.sign(byName.getId(), crypto);
             return R.success(token, "登录成功");
@@ -238,6 +253,38 @@ public class UsersController {
                 userPersonalDto.getGender(),
                 userPersonalDto.getEmotion(),
                 userId));
+    }
+
+    @DeleteMapping("/delete")
+    @Transactional(rollbackFor=Exception.class)
+    @ApiOperation("注销用户账号")
+    public R deleteUser() {
+        Subject subject = SecurityUtils.getSubject();
+        Integer userId = JwtUtils.getUserId(subject.getPrincipals().toString());
+        Example followingExample = new Example(Follow.class);
+        followingExample.selectProperties("id", "userId", "followingUserId")
+                .and()
+                .andEqualTo("userId", userId);
+        List<Follow> followings = followMapper.selectByExample(followingExample);
+        for (Follow following : followings) {
+            followMapper.decreaseUserFollowed(following.getFollowingUserId());
+        }
+        Example followedExample = new Example(Follow.class);
+        followedExample.selectProperties("id", "userId", "followingUserId")
+                .and()
+                .andEqualTo("followingUserId", userId);
+        List<Follow> followeds = followMapper.selectByExample(followedExample);
+        for (Follow followed : followeds) {
+            followMapper.decreaseUserFollowing(followed.getUserId());
+        }
+        userService.deleteUserById(userId);
+        userInfoMapper.deleteUsersInfo(userId);
+        trendMapper.deleteUsersTrend(userId);
+        likesMapper.deleteUsersLikes(userId);
+        commentsMapper.deleteUsersComments(userId);
+        followMapper.deleteUsersFollow(userId);
+        followMapper.deleteUsersFollowing(userId);
+        return R.success(null);
     }
 
 }

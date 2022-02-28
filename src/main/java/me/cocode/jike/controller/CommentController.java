@@ -15,6 +15,7 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -47,6 +48,7 @@ public class CommentController {
 
     @PostMapping
     @RequiresAuthentication
+    @Transactional(rollbackFor=Exception.class)
     @ApiOperation("发布评论")
     public R postComment(@RequestBody String postCommJson){
         // 添加新评论

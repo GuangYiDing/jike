@@ -3,10 +3,7 @@ package me.cocode.jike.dao;
 import me.cocode.jike.common.service.CommonMapper;
 import me.cocode.jike.dto.UserPersonalDto;
 import me.cocode.jike.entity.UserInfo;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.ResultType;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -40,4 +37,10 @@ public interface UserInfoMapper extends CommonMapper<UserInfo> {
      */
     @Select("SELECT u.id,u.user_name userName,u.avatar userAvatar,u.signature,ui.gender,ui.emotion,ui.birthday FROM users u,user_info ui WHERE u.id=ui.id")
     List<UserPersonalDto> getUserInfoCard();
+
+    /**
+     * 删除用户档案
+     */
+    @Delete("DELETE FROM  user_info WHERE user_info.id=#{userId} ")
+    int deleteUsersInfo(@Param("userId") Integer userId);
 }

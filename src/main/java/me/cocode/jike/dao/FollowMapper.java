@@ -3,6 +3,7 @@ package me.cocode.jike.dao;
 import me.cocode.jike.common.service.CommonMapper;
 import me.cocode.jike.entity.Follow;
 import me.cocode.jike.entity.Users;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
@@ -40,7 +41,7 @@ public interface FollowMapper extends CommonMapper<Follow> {
 
 
     /**
-     * 减少用户的被关注数
+     * 减少用户的粉丝数
      */
     @Update("UPDATE users " +
             "SET users.followed=(SELECT followed FROM ( " +
@@ -64,7 +65,17 @@ public interface FollowMapper extends CommonMapper<Follow> {
     List<Users> getUserFollowed(@Param("userId") Integer userId);
 
 
+    /**
+     * 删除用户所有的关注
+     */
+    @Delete("DELETE FROM  follow WHERE follow.user_id= #{userId}")
+    int deleteUsersFollow(@Param("userId") Integer userId);
 
+    /**
+     * 删除用户粉丝中的用户
+     */
+    @Delete("DELETE FROM  follow WHERE follow.following_user_id= #{userId}")
+    int deleteUsersFollowing(@Param("userId") Integer userId);
 
 
 }

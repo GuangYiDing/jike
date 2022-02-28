@@ -15,6 +15,7 @@ import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.subject.Subject;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tk.mybatis.mapper.entity.Example;
 
@@ -68,6 +69,7 @@ public class LikeController {
 
     @PostMapping("/trend")
     @RequiresAuthentication
+    @Transactional(rollbackFor=Exception.class)
     @ApiOperation("点赞动态")
     public R likeTrend(@RequestBody Map<String,Object> trendIdJson) {
         Integer trendId = (Integer) trendIdJson.get("trendId");
@@ -93,6 +95,7 @@ public class LikeController {
 
     @DeleteMapping("/trend")
     @RequiresAuthentication
+    @Transactional(rollbackFor=Exception.class)
     @ApiOperation("取消点赞动态")
     public R cancelLikeTrend(@RequestParam("trendId") Integer trendId) {
         // 先查询是否点赞过
@@ -111,6 +114,7 @@ public class LikeController {
 
     @PostMapping("/comm")
     @RequiresAuthentication
+    @Transactional(rollbackFor=Exception.class)
     @ApiOperation("点赞评论")
     public R likeComm(@RequestBody Map<String,Object> commIdJson) {
         Integer commId = (Integer) commIdJson.get("commId");
@@ -137,6 +141,7 @@ public class LikeController {
 
     @DeleteMapping("/comm")
     @RequiresAuthentication
+    @Transactional(rollbackFor=Exception.class)
     @ApiOperation("取消点赞评论")
     public R cancelLikeComm(@RequestParam("commId") Integer commId) {
         Subject subject = SecurityUtils.getSubject();

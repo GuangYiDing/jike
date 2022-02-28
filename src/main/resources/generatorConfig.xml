@@ -49,8 +49,7 @@
 
 
         <!--生成全部表tableName设为%-->
-
-        <table tableName="token">
+        <table tableName="message">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
     </context>

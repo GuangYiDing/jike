@@ -65,6 +65,10 @@ public interface TrendMapper extends CommonMapper<Trend> {
     @Delete("DELETE FROM comments WHERE comments.trend_id = #{trendId} ")
     int deletePostedTrendComm(@Param("trendId") Integer trendId);
 
-
+    /**
+     * 删除用户所有发布的动态
+     */
+    @Delete("DELETE FROM  trend WHERE trend.user_id= #{userId} ")
+    int deleteUsersTrend(@Param("userId") Integer userId);
 
 }

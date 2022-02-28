@@ -2,6 +2,7 @@ package me.cocode.jike.dao;
 
 import me.cocode.jike.common.service.CommonMapper;
 import me.cocode.jike.entity.Likes;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 
@@ -39,4 +40,10 @@ public interface LikesMapper extends CommonMapper<Likes> {
             "SELECT comments.likes_count FROM comments WHERE comments.id=#{commId}) AS t)-1 WHERE comments.id=#{commId}")
     int decreaseCommLikesCount(@Param("commId")Integer commId);
 
+
+    /**
+     * 删除用户所有的点赞
+     */
+    @Delete("DELETE FROM  likes WHERE likes.user_id= #{userId} ")
+    int deleteUsersLikes(@Param("userId") Integer userId);
 }

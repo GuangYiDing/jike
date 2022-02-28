@@ -10,4 +10,6 @@ import me.cocode.jike.entity.Users;
  */
 public interface UserService  extends CommonService<Users>{
     Users selectOneByName(String userName);
+
+    int deleteUserById(Integer userId);
 }
